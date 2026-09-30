@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../../../DSA/Project1"
+		},
+		{
+			"name": "1",
+			"path": "../../1"
+		},
+		{
+			"name": "wifi",
+			"path": "../../wifi"
+		},
+		{
+			"name": "01_esp32_server",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}
