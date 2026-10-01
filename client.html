@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giám sát Nhiệt độ & Độ ẩm</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    padding: 20px;
+  }
+  .container {
+    width: 100%;
+    max-width: 500px;
+  }
+  h1 {
+    color: #e2e8f0;
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    color: #64748b;
+    text-align: center;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+    border: 1px solid #334155;
+    transition: transform 0.2s;
+  }
+  .card:hover { transform: translateY(-2px); }
+  .card .icon { font-size: 36px; margin-bottom: 8px; }
+  .card .value {
+    font-size: 36px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+  .card .unit { font-size: 18px; color: #94a3b8; }
+  .card .label {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  #temp-card .value { color: #f87171; }
+  #hum-card .value { color: #38bdf8; }
+  .status-bar {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #94a3b8;
+    border: 1px solid #334155;
+  }
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    margin-right: 6px;
+    box-shadow: 0 0 6px #22c55e;
+  }
+  .controls {
+    margin-top: 16px;
+    text-align: center;
+  }
+  button {
+    background: #334155;
+    color: #e2e8f0;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    margin: 0 4px;
+  }
+  button:hover { background: #475569; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🌡️ Giám sát Nhiệt độ & Độ ẩm</h1>
+  <p class="subtitle">Dữ liệu cảm biến thời gian thực</p>
+
+  <div class="cards">
+    <div class="card" id="temp-card">
+      <div class="icon">🌡️</div>
+      <div class="value"><span id="temp-value">--</span><span class="unit">°C</span></div>
+      <div class="label">Nhiệt độ</div>
+    </div>
+    <div class="card" id="hum-card">
+      <div class="icon">💧</div>
+      <div class="value"><span id="hum-value">--</span><span class="unit">%</span></div>
+      <div class="label">Độ ẩm</div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span><span class="status-dot"></span>Đang kết nối</span>
+    <span id="last-update">Cập nhật: --</span>
+  </div>
+
+  <div class="controls">
+    <button onclick="updateData()">🔄 Làm mới</button>
+  </div>
+</div>
+
+<script>
+  // ĐỔI địa chỉ IP local của ESP32 tại đây (xem Serial Monitor khi ESP32 kết nối Wi-Fi)
+  const ESP32_URL = 'http://192.168.1.100:3000/data'; // ví dụ endpoint trả về JSON: {"temp":27.5,"hum":65}
+
+  async function updateData() {
+    try {
+      const res = await fetch(ESP32_URL);
+      const data = await res.json();
+
+      document.getElementById('temp-value').textContent = data.temp;
+      document.getElementById('hum-value').textContent = data.hum;
+
+      const now = new Date();
+      document.getElementById('last-update').textContent =
+        'Cập nhật: ' + now.toLocaleTimeString('vi-VN');
+    } catch (err) {
+      document.getElementById('last-update').textContent = 'Lỗi kết nối ESP32';
+      console.error('Không lấy được dữ liệu từ ESP32:', err);
+    }
+  }
+
+  updateData();
+  setInterval(updateData, 3000); // tự cập nhật mỗi 3 giây
+</script>
+
+</body>
+</html>
